@@ -1,0 +1,1 @@
+This module is responsible for monitoring docker containers. This currently contains disk io, cpu, network, memory and threads
