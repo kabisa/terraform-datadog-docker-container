@@ -6,7 +6,8 @@ locals {
 }
 
 module "thread_count" {
-  source = "git@github.com:kabisa/terraform-datadog-generic-monitor.git?ref=0.7.0"
+  source  = "kabisa/generic-monitor/datadog"
+  version = "1.0.0"
 
   name  = "Container - Thread Count"
   query = "avg(${var.thread_count_evaluation_period}):avg:docker.thread.count{${local.thread_count_filter}} by {host${local.by_cluster},container_name} > ${var.thread_count_critical}"
@@ -22,7 +23,7 @@ module "thread_count" {
   alerting_enabled   = var.thread_count_alerting_enabled
   warning_threshold  = var.thread_count_warning
   critical_threshold = var.thread_count_critical
-  priority           = var.thread_count_priority
+  priority           = min(var.thread_count_priority + var.priority_offset, 5)
   docs               = var.thread_count_docs
   note               = var.thread_count_note
 

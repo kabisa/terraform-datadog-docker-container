@@ -6,7 +6,8 @@ locals {
 }
 
 module "disk_io_read" {
-  source = "git@github.com:kabisa/terraform-datadog-generic-monitor.git?ref=0.7.0"
+  source  = "kabisa/generic-monitor/datadog"
+  version = "1.0.0"
 
   name  = "Container - Disk IO Read"
   query = "avg(${var.disk_io_read_evaluation_period}):avg:docker.io.read_bytes{${local.disk_io_read_filter}} by {container_name,host${local.by_cluster}} > ${var.disk_io_read_critical}"
@@ -22,7 +23,7 @@ module "disk_io_read" {
   alerting_enabled   = var.disk_io_read_alerting_enabled
   warning_threshold  = var.disk_io_read_warning
   critical_threshold = var.disk_io_read_critical
-  priority           = var.disk_io_read_priority
+  priority           = min(var.disk_io_read_priority + var.priority_offset, 5)
   docs               = var.disk_io_read_docs
   note               = var.disk_io_read_note
 

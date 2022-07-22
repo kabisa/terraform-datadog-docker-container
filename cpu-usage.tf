@@ -6,7 +6,8 @@ locals {
 }
 
 module "cpu_usage" {
-  source = "git@github.com:kabisa/terraform-datadog-generic-monitor.git?ref=0.7.0"
+  source  = "kabisa/generic-monitor/datadog"
+  version = "1.0.0"
 
   name  = "Container - CPU usage"
   query = "avg(${var.cpu_usage_evaluation_period}):avg:docker.cpu.usage{${local.cpu_usage_filter}} by {container_name,host${local.by_cluster}} > ${var.cpu_usage_critical}"
@@ -22,7 +23,7 @@ module "cpu_usage" {
   alerting_enabled   = var.cpu_usage_alerting_enabled
   warning_threshold  = var.cpu_usage_warning
   critical_threshold = var.cpu_usage_critical
-  priority           = var.cpu_usage_priority
+  priority           = min(var.cpu_usage_priority + var.priority_offset, 5)
   docs               = var.cpu_usage_docs
   note               = var.cpu_usage_note
 
