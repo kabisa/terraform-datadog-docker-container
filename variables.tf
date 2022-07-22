@@ -35,8 +35,9 @@ variable "name_suffix" {
 }
 
 variable "runs_in_k8s" {
-  type    = bool
-  default = false
+  description = "This will add extra group by cluster to alerts"
+  type        = bool
+  default     = false
 }
 
 variable "priority_offset" {

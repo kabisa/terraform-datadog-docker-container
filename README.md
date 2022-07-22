@@ -250,7 +250,7 @@ avg(last_30m):avg:docker.thread.count{tag:xxx} by {host${local.by_cluster},conta
 | locked               | False    | No       |                                                          |
 | name_prefix          | ""       | No       |                                                          |
 | name_suffix          | ""       | No       |                                                          |
-| runs_in_k8s          | False    | No       |                                                          |
+| runs_in_k8s          | False    | No       | This will add extra group by cluster to alerts           |
 | priority_offset      | 0        | No       | For non production workloads we can +1 on the priorities |
 
 
