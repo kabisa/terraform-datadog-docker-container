@@ -22,7 +22,7 @@ Modules are generated with this tool: https://github.com/kabisa/datadog-terrafor
 module "containers" {
   source = "kabisa/docker-container/datadog"
 
-  notification_channel = "mail@example.com"
+  notification_channel = "@mail@example.com"
   service              = "MyApp"
   env                  = "prd"
   filter_str           = "app:myapp"
@@ -37,25 +37,30 @@ module "containers" {
   ingress_traffic_warning  = 7500000  # 7.5MB/s
   ingress_traffic_critical = 10000000 # 10MB/s
 }
+
 ```
 
+
+[Module Variables](#module-variables)
+
 Monitors:
-* [Terraform module for Datadog Docker Container](#terraform-module-for-datadog-docker-container)
-  * [CPU Usage](#cpu-usage)
-  * [Thread Count](#thread-count)
-  * [Disk Io Write](#disk-io-write)
-  * [Ingress Traffic](#ingress-traffic)
-  * [Memory Used Percent](#memory-used-percent)
-  * [Egress Traffic](#egress-traffic)
-  * [Disk Io Read](#disk-io-read)
-  * [Module Variables](#module-variables)
+
+| Monitor name    | Default enabled | Priority | Query                  |
+|-----------------|------|----|------------------------|
+| [CPU Usage](#cpu-usage) | True | 3  | `avg(last_15m):avg:docker.cpu.usage{tag:xxx} by {container_name,host${local.by_cluster}} > 85` |
+| [Disk Io Read](#disk-io-read) | True | 3  | `avg(last_15m):avg:docker.io.read_bytes{tag:xxx} by {container_name,host${local.by_cluster}} > ` |
+| [Disk Io Write](#disk-io-write) | True | 3  | `avg(last_15m):avg:docker.io.write_bytes{tag:xxx} by {container_name,host${local.by_cluster}} > ` |
+| [Egress Traffic](#egress-traffic) | True | 3  | `avg(last_15m):avg:docker.net.bytes_sent{tag:xxx} by {container_name,host${local.by_cluster}} > ` |
+| [Ingress Traffic](#ingress-traffic) | True | 3  | `avg(last_15m):avg:docker.net.bytes_rcvd{tag:xxx} by {container_name,host${local.by_cluster}} > ` |
+| [Memory Used Percent](#memory-used-percent) | True | 3  | `avg(last_5m):avg:docker.mem.in_use{tag:xxx} by {container_name,host${local.by_cluster}} > 85` |
+| [Thread Count](#thread-count) | False | 3  | `avg(last_30m):avg:docker.thread.count{tag:xxx} by {host${local.by_cluster},container_name} > ` |
 
 # Getting started developing
 [pre-commit](http://pre-commit.com/) was used to do Terraform linting and validating.
 
 Steps:
    - Install [pre-commit](http://pre-commit.com/). E.g. `brew install pre-commit`.
-   - Run `pre-commit install` in this repo. (Every time you cloud a repo with pre-commit enabled you will need to run the pre-commit install command)
+   - Run `pre-commit install` in this repo. (Every time you clone a repo with pre-commit enabled you will need to run the pre-commit install command)
    - That’s it! Now every time you commit a code change (`.tf` file), the hooks in the `hooks:` config `.pre-commit-config.yaml` will execute.
 
 ## CPU Usage
@@ -83,29 +88,29 @@ avg(last_15m):avg:docker.cpu.usage{tag:xxx} by {container_name,host${local.by_cl
 | cpu_usage_priority          | 3        | No       | Number from 1 (high) to 5 (low). |
 
 
-## Thread Count
+## Disk Io Read
 
 Query:
 ```terraform
-avg(last_30m):avg:docker.thread.count{tag:xxx} by {host${local.by_cluster},container_name} > 
+avg(last_15m):avg:docker.io.read_bytes{tag:xxx} by {container_name,host${local.by_cluster}} > 
 ```
 
 | variable                       | default  | required | description                      |
 |--------------------------------|----------|----------|----------------------------------|
-| thread_count_enabled           | False    | No       |                                  |
-| thread_count_warning           | None     | No       |                                  |
-| thread_count_critical          | None     | No       |                                  |
-| thread_count_evaluation_period | last_30m | No       |                                  |
-| thread_count_note              | ""       | No       |                                  |
-| thread_count_docs              | ""       | No       |                                  |
-| thread_count_filter_override   | ""       | No       |                                  |
-| thread_count_alerting_enabled  | True     | No       |                                  |
-| thread_count_no_data_timeframe | None     | No       |                                  |
-| thread_count_notify_no_data    | False    | No       |                                  |
-| thread_count_ok_threshold      | None     | No       |                                  |
-| thread_count_name_prefix       | ""       | No       |                                  |
-| thread_count_name_suffix       | ""       | No       |                                  |
-| thread_count_priority          | 3        | No       | Number from 1 (high) to 5 (low). |
+| disk_io_read_enabled           | True     | No       |                                  |
+| disk_io_read_warning           | None     | No       |                                  |
+| disk_io_read_critical          |          | Yes      |                                  |
+| disk_io_read_evaluation_period | last_15m | No       |                                  |
+| disk_io_read_note              | ""       | No       |                                  |
+| disk_io_read_docs              | ""       | No       |                                  |
+| disk_io_read_filter_override   | ""       | No       |                                  |
+| disk_io_read_alerting_enabled  | True     | No       |                                  |
+| disk_io_read_no_data_timeframe | None     | No       |                                  |
+| disk_io_read_notify_no_data    | False    | No       |                                  |
+| disk_io_read_ok_threshold      | None     | No       |                                  |
+| disk_io_read_name_prefix       | ""       | No       |                                  |
+| disk_io_read_name_suffix       | ""       | No       |                                  |
+| disk_io_read_priority          | 3        | No       | Number from 1 (high) to 5 (low). |
 
 
 ## Disk Io Write
@@ -131,6 +136,31 @@ avg(last_15m):avg:docker.io.write_bytes{tag:xxx} by {container_name,host${local.
 | disk_io_write_name_prefix       | ""       | No       |                                  |
 | disk_io_write_name_suffix       | ""       | No       |                                  |
 | disk_io_write_priority          | 3        | No       | Number from 1 (high) to 5 (low). |
+
+
+## Egress Traffic
+
+Query:
+```terraform
+avg(last_15m):avg:docker.net.bytes_sent{tag:xxx} by {container_name,host${local.by_cluster}} > 
+```
+
+| variable                         | default  | required | description                      |
+|----------------------------------|----------|----------|----------------------------------|
+| egress_traffic_enabled           | True     | No       |                                  |
+| egress_traffic_warning           | None     | No       |                                  |
+| egress_traffic_critical          |          | Yes      |                                  |
+| egress_traffic_evaluation_period | last_15m | No       |                                  |
+| egress_traffic_note              | ""       | No       |                                  |
+| egress_traffic_docs              | ""       | No       |                                  |
+| egress_traffic_filter_override   | ""       | No       |                                  |
+| egress_traffic_alerting_enabled  | True     | No       |                                  |
+| egress_traffic_no_data_timeframe | None     | No       |                                  |
+| egress_traffic_notify_no_data    | False    | No       |                                  |
+| egress_traffic_ok_threshold      | None     | No       |                                  |
+| egress_traffic_name_prefix       | ""       | No       |                                  |
+| egress_traffic_name_suffix       | ""       | No       |                                  |
+| egress_traffic_priority          | 3        | No       | Number from 1 (high) to 5 (low). |
 
 
 ## Ingress Traffic
@@ -183,68 +213,44 @@ avg(last_5m):avg:docker.mem.in_use{tag:xxx} by {container_name,host${local.by_cl
 | memory_used_percent_priority          | 3        | No       | Number from 1 (high) to 5 (low). |
 
 
-## Egress Traffic
+## Thread Count
 
 Query:
 ```terraform
-avg(last_15m):avg:docker.net.bytes_sent{tag:xxx} by {container_name,host${local.by_cluster}} > 
-```
-
-| variable                         | default  | required | description                      |
-|----------------------------------|----------|----------|----------------------------------|
-| egress_traffic_enabled           | True     | No       |                                  |
-| egress_traffic_warning           | None     | No       |                                  |
-| egress_traffic_critical          |          | Yes      |                                  |
-| egress_traffic_evaluation_period | last_15m | No       |                                  |
-| egress_traffic_note              | ""       | No       |                                  |
-| egress_traffic_docs              | ""       | No       |                                  |
-| egress_traffic_filter_override   | ""       | No       |                                  |
-| egress_traffic_alerting_enabled  | True     | No       |                                  |
-| egress_traffic_no_data_timeframe | None     | No       |                                  |
-| egress_traffic_notify_no_data    | False    | No       |                                  |
-| egress_traffic_ok_threshold      | None     | No       |                                  |
-| egress_traffic_name_prefix       | ""       | No       |                                  |
-| egress_traffic_name_suffix       | ""       | No       |                                  |
-| egress_traffic_priority          | 3        | No       | Number from 1 (high) to 5 (low). |
-
-
-## Disk Io Read
-
-Query:
-```terraform
-avg(last_15m):avg:docker.io.read_bytes{tag:xxx} by {container_name,host${local.by_cluster}} > 
+avg(last_30m):avg:docker.thread.count{tag:xxx} by {host${local.by_cluster},container_name} > 
 ```
 
 | variable                       | default  | required | description                      |
 |--------------------------------|----------|----------|----------------------------------|
-| disk_io_read_enabled           | True     | No       |                                  |
-| disk_io_read_warning           | None     | No       |                                  |
-| disk_io_read_critical          |          | Yes      |                                  |
-| disk_io_read_evaluation_period | last_15m | No       |                                  |
-| disk_io_read_note              | ""       | No       |                                  |
-| disk_io_read_docs              | ""       | No       |                                  |
-| disk_io_read_filter_override   | ""       | No       |                                  |
-| disk_io_read_alerting_enabled  | True     | No       |                                  |
-| disk_io_read_no_data_timeframe | None     | No       |                                  |
-| disk_io_read_notify_no_data    | False    | No       |                                  |
-| disk_io_read_ok_threshold      | None     | No       |                                  |
-| disk_io_read_name_prefix       | ""       | No       |                                  |
-| disk_io_read_name_suffix       | ""       | No       |                                  |
-| disk_io_read_priority          | 3        | No       | Number from 1 (high) to 5 (low). |
+| thread_count_enabled           | False    | No       |                                  |
+| thread_count_warning           | None     | No       |                                  |
+| thread_count_critical          | None     | No       |                                  |
+| thread_count_evaluation_period | last_30m | No       |                                  |
+| thread_count_note              | ""       | No       |                                  |
+| thread_count_docs              | ""       | No       |                                  |
+| thread_count_filter_override   | ""       | No       |                                  |
+| thread_count_alerting_enabled  | True     | No       |                                  |
+| thread_count_no_data_timeframe | None     | No       |                                  |
+| thread_count_notify_no_data    | False    | No       |                                  |
+| thread_count_ok_threshold      | None     | No       |                                  |
+| thread_count_name_prefix       | ""       | No       |                                  |
+| thread_count_name_suffix       | ""       | No       |                                  |
+| thread_count_priority          | 3        | No       | Number from 1 (high) to 5 (low). |
 
 
 ## Module Variables
 
-| variable             | default  | required | description  |
-|----------------------|----------|----------|--------------|
-| filter_str           |          | Yes      |              |
-| env                  |          | Yes      |              |
-| service              |          | Yes      |              |
-| notification_channel |          | Yes      |              |
-| additional_tags      | []       | No       |              |
-| locked               | False    | No       |              |
-| name_prefix          | ""       | No       |              |
-| name_suffix          | ""       | No       |              |
-| runs_in_k8s          | False    | No       |              |
+| variable             | default  | required | description                                              |
+|----------------------|----------|----------|----------------------------------------------------------|
+| filter_str           |          | Yes      |                                                          |
+| env                  |          | Yes      |                                                          |
+| service              |          | Yes      |                                                          |
+| notification_channel |          | Yes      |                                                          |
+| additional_tags      | []       | No       |                                                          |
+| locked               | False    | No       |                                                          |
+| name_prefix          | ""       | No       |                                                          |
+| name_suffix          | ""       | No       |                                                          |
+| runs_in_k8s          | False    | No       |                                                          |
+| priority_offset      | 0        | No       | For non production workloads we can +1 on the priorities |
 
 

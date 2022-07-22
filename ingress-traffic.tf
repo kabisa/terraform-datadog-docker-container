@@ -6,7 +6,8 @@ locals {
 }
 
 module "ingress_traffic" {
-  source = "git@github.com:kabisa/terraform-datadog-generic-monitor.git?ref=0.7.0"
+  source  = "kabisa/generic-monitor/datadog"
+  version = "1.0.0"
 
   name  = "Container - Ingress Traffic"
   query = "avg(${var.ingress_traffic_evaluation_period}):avg:docker.net.bytes_rcvd{${local.ingress_traffic_filter}} by {container_name,host${local.by_cluster}} > ${var.ingress_traffic_critical}"
@@ -22,7 +23,7 @@ module "ingress_traffic" {
   alerting_enabled   = var.ingress_traffic_alerting_enabled
   warning_threshold  = var.ingress_traffic_warning
   critical_threshold = var.ingress_traffic_critical
-  priority           = var.ingress_traffic_priority
+  priority           = min(var.ingress_traffic_priority + var.priority_offset, 5)
   docs               = var.ingress_traffic_docs
   note               = var.ingress_traffic_note
 

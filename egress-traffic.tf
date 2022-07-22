@@ -6,7 +6,8 @@ locals {
 }
 
 module "egress_traffic" {
-  source = "git@github.com:kabisa/terraform-datadog-generic-monitor.git?ref=0.7.0"
+  source  = "kabisa/generic-monitor/datadog"
+  version = "1.0.0"
 
   name  = "Container - Egress Traffic"
   query = "avg(${var.egress_traffic_evaluation_period}):avg:docker.net.bytes_sent{${local.egress_traffic_filter}} by {container_name,host${local.by_cluster}} > ${var.egress_traffic_critical}"
@@ -22,7 +23,7 @@ module "egress_traffic" {
   alerting_enabled   = var.egress_traffic_alerting_enabled
   warning_threshold  = var.egress_traffic_warning
   critical_threshold = var.egress_traffic_critical
-  priority           = var.egress_traffic_priority
+  priority           = min(var.egress_traffic_priority + var.priority_offset, 5)
   docs               = var.egress_traffic_docs
   note               = var.egress_traffic_note
 

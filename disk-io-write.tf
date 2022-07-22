@@ -6,7 +6,8 @@ locals {
 }
 
 module "disk_io_write" {
-  source = "git@github.com:kabisa/terraform-datadog-generic-monitor.git?ref=0.7.0"
+  source  = "kabisa/generic-monitor/datadog"
+  version = "1.0.0"
 
   name  = "Container - Disk IO Write"
   query = "avg(${var.disk_io_write_evaluation_period}):avg:docker.io.write_bytes{${local.disk_io_write_filter}} by {container_name,host${local.by_cluster}} > ${var.disk_io_write_critical}"
@@ -22,7 +23,7 @@ module "disk_io_write" {
   alerting_enabled   = var.disk_io_write_alerting_enabled
   warning_threshold  = var.disk_io_write_warning
   critical_threshold = var.disk_io_write_critical
-  priority           = var.disk_io_write_priority
+  priority           = min(var.disk_io_write_priority + var.priority_offset, 5)
   docs               = var.disk_io_write_docs
   note               = var.disk_io_write_note
 

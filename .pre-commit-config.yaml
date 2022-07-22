@@ -1,14 +1,13 @@
 repos:
   - repo: https://github.com/gruntwork-io/pre-commit
-    rev: v0.1.14
+    rev: v0.1.12
     hooks:
       - id: terraform-fmt
       - id: terraform-validate
       - id: tflint
-  - repo: git@github.com:kabisa/terraform-datadog-pre-commit-hook.git
-    rev: "1.2.2"
+  - repo: https://github.com/kabisa/terraform-datadog-pre-commit-hook
+    rev: "1.3.6"
     hooks:
       - id: terraform-datadog-docs
-        exclude: ^README.md$
         args:
         - "."

@@ -6,7 +6,8 @@ locals {
 }
 
 module "memory_used_percent" {
-  source = "git@github.com:kabisa/terraform-datadog-generic-monitor.git?ref=0.7.0"
+  source  = "kabisa/generic-monitor/datadog"
+  version = "1.0.0"
 
   name  = "Container - Memory usage"
   query = "avg(${var.memory_used_percent_evaluation_period}):avg:docker.mem.in_use{${local.memory_used_percent_filter}} by {container_name,host${local.by_cluster}} > ${var.memory_used_percent_critical}"
@@ -22,7 +23,7 @@ module "memory_used_percent" {
   alerting_enabled   = var.memory_used_percent_alerting_enabled
   warning_threshold  = var.memory_used_percent_warning
   critical_threshold = var.memory_used_percent_critical
-  priority           = var.memory_used_percent_priority
+  priority           = min(var.memory_used_percent_priority + var.priority_offset, 5)
   docs               = var.memory_used_percent_docs
   note               = var.memory_used_percent_note
 

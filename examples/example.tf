@@ -1,7 +1,8 @@
+# tflint-ignore: terraform_module_version
 module "containers" {
   source = "kabisa/docker-container/datadog"
 
-  notification_channel = "mail@example.com"
+  notification_channel = "@mail@example.com"
   service              = "MyApp"
   env                  = "prd"
   filter_str           = "app:myapp"
